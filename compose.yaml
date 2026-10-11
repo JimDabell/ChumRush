@@ -1,0 +1,33 @@
+name: chumrush
+services:
+  dynamodb:
+    image: amazon/dynamodb-local@sha256:ff89bd48ff32cd8d9be5fee8873b65b8854dc408f1afe881be6eb00247bc0dab
+    command: -jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data
+    user: root
+    ports:
+      - '127.0.0.1:8100:8000'
+    volumes:
+      - dynamodb:/home/dynamodblocal/data
+  dashboard:
+    image: kritishdhaubanjar/dynamodb-dashboard:latest
+    ports:
+      - '127.0.0.1:8101:4567'
+    environment:
+      AWS_ENDPOINT: http://dynamodb:8000
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+    depends_on:
+      - dynamodb
+  mailpit:
+    image: axllent/mailpit@sha256:98b916bd3c8d61f7633a52d3ea2f58d00620cb01ca57ab59edde68c347a95365
+    ports:
+      - '127.0.0.1:1125:1025'
+      - '127.0.0.1:8125:8025'
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    volumes:
+      - mailpit:/data
+volumes:
+  dynamodb:
+  mailpit:

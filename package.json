@@ -1,0 +1,46 @@
+{
+	"name": "chumrush",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"imports": {
+		"#lib/*": "./src/lib/*"
+	},
+	"scripts": {
+		"dev": "portless www.chumrush vp dev",
+		"dev:services": "docker compose up -d && portless alias db.chumrush 8101 && portless alias mail.chumrush 8125",
+		"dev:db": "docker compose up -d dashboard && portless alias db.chumrush 8101",
+		"dev:mail": "docker compose up -d mailpit && portless alias mail.chumrush 8125",
+		"build": "vp build",
+		"preview": "vp preview",
+		"prepare": "svelte-kit sync",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && vp check",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"lint": "vp lint",
+		"format": "vp fmt"
+	},
+	"dependencies": {
+		"@aws-sdk/client-dynamodb": "^3.1149.0",
+		"@aws-sdk/lib-dynamodb": "^3.1149.0",
+		"@mapbox/search-js-core": "^1.6.0",
+		"mapbox-gl": "^3.32.0"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^8.0.0",
+		"@sveltejs/kit": "^3.0.1",
+		"@sveltejs/vite-plugin-svelte": "^7.3.1",
+		"@types/node": "^26.6.5",
+		"portless": "^0.15.7",
+		"svelte": "^5.57.2",
+		"svelte-check": "^4.7.6",
+		"typescript": "^6.0.0",
+		"vite": "npm:@voidzero-dev/vite-plus-core@^1.1.0",
+		"vite-plus": "^1.1.0"
+	},
+	"overrides": {
+		"vite": "$vite"
+	},
+	"engines": {
+		"node": "^24.11.0 || >=26.0.0"
+	}
+}

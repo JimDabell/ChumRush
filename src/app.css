@@ -1,0 +1,71 @@
+:root {
+	font-family: system-ui, sans-serif;
+	color-scheme: light;
+	color: var(--color-ink);
+	background: var(--color-canvas);
+	font-synthesis: none;
+	line-height: 1.5;
+
+	--rounded: ui-rounded, 'SF Pro Rounded', 'SF Pro Display', system-ui, sans-serif;
+
+	--color-ink: #2f3443;
+	--color-muted: #636779;
+	--color-canvas: #f0edf8;
+	--color-surface: #fcfcff;
+	--color-accent: #c9bce9;
+	--color-brand-ink: #5d4a84;
+	--color-secondary: #c3dff0;
+	--color-border: #dbd8ec;
+	--color-shadow: #3430472b;
+
+	--control-height: 3.5rem;
+	--control-radius: 0.875rem;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	min-block-size: 100svh;
+	margin: 0;
+	background: var(--color-canvas);
+}
+
+::selection {
+	color: var(--color-ink);
+	background: var(--color-accent);
+}
+
+h1,
+p {
+	margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--rounded);
+}
+
+img {
+	display: block;
+	max-inline-size: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+}
+
+:focus-visible {
+	outline: 3px solid var(--color-ink);
+	outline-offset: 4px;
+}
