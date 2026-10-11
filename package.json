@@ -7,7 +7,7 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"scripts": {
-		"dev": "portless www.chumrush vp dev",
+		"dev": "node scripts/dev.mjs",
 		"dev:services": "docker compose up -d && portless alias db.chumrush 8101 && portless alias mail.chumrush 8125",
 		"dev:db": "docker compose up -d dashboard && portless alias db.chumrush 8101",
 		"dev:mail": "docker compose up -d mailpit && portless alias mail.chumrush 8125",

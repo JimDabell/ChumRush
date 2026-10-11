@@ -1,25 +1,33 @@
 import { defineEnvVars } from '@sveltejs/kit/env';
 
+function required(name: string) {
+	return (value: string | undefined): string => {
+		const configured = value?.trim();
+		if (!configured) throw new Error(`${name} must be set.`);
+		return configured;
+	};
+}
+
 export const variables = defineEnvVars({
 	DYNAMODB_ENDPOINT: {
-		description: 'DynamoDB endpoint; defaults to the ChumRush local service.',
-		schema: (value) => value?.trim() || 'http://127.0.0.1:8100'
+		description: 'Optional DynamoDB endpoint; local development uses the Compose service.',
+		schema: (value) => value?.trim() ?? ''
 	},
 	DYNAMODB_REGION: {
 		description: 'AWS region used to sign DynamoDB requests.',
-		schema: (value) => value?.trim() || 'us-east-1'
+		schema: required('DYNAMODB_REGION')
 	},
 	DYNAMODB_ACCESS_KEY_ID: {
-		description: 'DynamoDB access key; the local service uses local.',
-		schema: (value) => value?.trim() || 'local'
+		description: 'Optional DynamoDB access key; omit it to use the AWS credential chain.',
+		schema: (value) => value?.trim() ?? ''
 	},
 	DYNAMODB_SECRET_ACCESS_KEY: {
-		description: 'Private DynamoDB credential; the local service uses local.',
-		schema: (value) => value?.trim() || 'local'
+		description: 'Optional private DynamoDB credential paired with the access key.',
+		schema: (value) => value?.trim() ?? ''
 	},
 	DYNAMODB_PROFILES_TABLE: {
-		description: 'Table for Strava profiles, keyed by athlete ID.',
-		schema: (value) => value?.trim() || 'chumrush-profiles'
+		description: 'Environment-specific table for Strava profiles.',
+		schema: required('DYNAMODB_PROFILES_TABLE')
 	},
 	STRAVA_CLIENT_ID: {
 		description: 'Strava API application client ID.',
@@ -27,10 +35,6 @@ export const variables = defineEnvVars({
 	},
 	STRAVA_CLIENT_SECRET: {
 		description: 'Private Strava OAuth client secret.',
-		schema: (value) => value?.trim() ?? ''
-	},
-	STRAVA_REDIRECT_URI: {
-		description: 'Registered absolute Strava OAuth callback URL.',
 		schema: (value) => value?.trim() ?? ''
 	},
 	AUTH_SECRET: {

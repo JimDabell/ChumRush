@@ -31,20 +31,25 @@ let tableReady: Promise<void> | undefined;
 function getDatabase(): ProfilesDatabase {
 	if (database) return database;
 
-	const endpoint = new URL(DYNAMODB_ENDPOINT || 'http://127.0.0.1:8100');
-	const hostname = endpoint.hostname;
+	const endpoint = DYNAMODB_ENDPOINT ? new URL(DYNAMODB_ENDPOINT) : undefined;
+	if (endpoint && !['http:', 'https:'].includes(endpoint.protocol)) {
+		throw new Error('DYNAMODB_ENDPOINT must use HTTP or HTTPS.');
+	}
+	const hostname = endpoint?.hostname;
 	const isLoopback =
 		hostname === 'localhost' ||
 		hostname === 'localhost.' ||
 		hostname === '[::1]' ||
-		/^127\.\d+\.\d+\.\d+$/.test(hostname);
+		(typeof hostname === 'string' && /^127\.\d+\.\d+\.\d+$/.test(hostname));
+	const accessKeyId = DYNAMODB_ACCESS_KEY_ID;
+	const secretAccessKey = DYNAMODB_SECRET_ACCESS_KEY;
+	if (Boolean(accessKeyId) !== Boolean(secretAccessKey)) {
+		throw new Error('DynamoDB access key ID and secret access key must be configured together.');
+	}
 	const rawClient = new DynamoDBClient({
-		endpoint: endpoint.href,
-		region: DYNAMODB_REGION || 'us-east-1',
-		credentials: {
-			accessKeyId: DYNAMODB_ACCESS_KEY_ID || 'local',
-			secretAccessKey: DYNAMODB_SECRET_ACCESS_KEY || 'local'
-		},
+		...(endpoint ? { endpoint: endpoint.href } : {}),
+		region: DYNAMODB_REGION,
+		...(accessKeyId && secretAccessKey ? { credentials: { accessKeyId, secretAccessKey } } : {}),
 		maxAttempts: 3,
 		requestHandler: {
 			connectionTimeout: 1_000,
@@ -55,7 +60,7 @@ function getDatabase(): ProfilesDatabase {
 	database = {
 		client: DynamoDBDocumentClient.from(rawClient),
 		rawClient,
-		tableName: DYNAMODB_PROFILES_TABLE || 'chumrush-profiles',
+		tableName: DYNAMODB_PROFILES_TABLE,
 		isLoopback
 	};
 	return database;

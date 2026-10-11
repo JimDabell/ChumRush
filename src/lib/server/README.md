@@ -1,6 +1,9 @@
 # Server-only code
 
-Future Strava OAuth integration, sessions, credentials, and persistence belong here.
-SvelteKit prevents client-side imports from this directory.
+This directory contains the Strava OAuth flow, encrypted session cookies,
+DynamoDB profile storage, and request-derived location handling. SvelteKit
+prevents client-side imports from this directory.
 
-No authentication, database, or external API clients are configured yet.
+Deployment selection lives in `src/lib/environment.ts` and
+`src/lib/deployment.ts`. Private credentials are declared in `src/env.ts` and
+must only be imported through `$app/env/private` from server code.

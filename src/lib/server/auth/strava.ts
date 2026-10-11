@@ -1,6 +1,12 @@
-import { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REDIRECT_URI } from '$app/env/private';
+import { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET } from '$app/env/private';
 import { redirect, type Cookies } from '@sveltejs/kit';
 import { timingSafeEqual } from 'node:crypto';
+import {
+	normalizeRequestOrigin,
+	requestOriginMatchesDeployment,
+	stravaRedirectUri
+} from '#lib/environment.ts';
+import { deployment } from '#lib/deployment.ts';
 import { cookieOptions, hasSessionSecret, normalizeAthlete } from '#lib/server/auth/session.ts';
 import { normalizeStravaProfile, type StravaProfile } from '#lib/server/profiles/profile.ts';
 
@@ -17,37 +23,23 @@ export function authError(code: AuthError): never {
 	redirect(303, `/?auth_error=${code}`);
 }
 
-// Portless terminates local HTTPS before forwarding to SvelteKit's HTTP dev server.
-export function authOrigin(origin: string): string {
-	return import.meta.env.DEV && origin === 'http://www.chumrush.localhost'
-		? 'https://www.chumrush.localhost'
-		: origin;
+export function authOrigin(origin: string): string | null {
+	return normalizeRequestOrigin(deployment, origin);
 }
 
 export function stravaConfig(origin: string) {
-	try {
-		const redirectUri = new URL(STRAVA_REDIRECT_URI);
-		if (
-			!hasSessionSecret() ||
-			!/^[1-9]\d*$/.test(STRAVA_CLIENT_ID) ||
-			!STRAVA_CLIENT_SECRET.trim() ||
-			redirectUri.protocol !== 'https:' ||
-			redirectUri.origin !== authOrigin(origin) ||
-			redirectUri.pathname !== '/auth/strava/callback' ||
-			redirectUri.search ||
-			redirectUri.hash ||
-			redirectUri.username ||
-			redirectUri.password
-		)
-			return null;
-		return {
-			clientId: STRAVA_CLIENT_ID,
-			clientSecret: STRAVA_CLIENT_SECRET,
-			redirectUri: redirectUri.href
-		};
-	} catch {
+	if (
+		!hasSessionSecret() ||
+		!/^[1-9]\d*$/.test(STRAVA_CLIENT_ID) ||
+		!STRAVA_CLIENT_SECRET.trim() ||
+		!requestOriginMatchesDeployment(deployment, origin)
+	)
 		return null;
-	}
+	return {
+		clientId: STRAVA_CLIENT_ID,
+		clientSecret: STRAVA_CLIENT_SECRET,
+		redirectUri: stravaRedirectUri(deployment)
+	};
 }
 
 export function createState(cookies: Cookies, params?: URLSearchParams): string {
