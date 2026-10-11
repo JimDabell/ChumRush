@@ -384,7 +384,6 @@
 		grid-template-columns: 3.75rem minmax(0, 1fr);
 		align-items: center;
 		gap: 0.875rem;
-		border-block-start: 1px solid var(--color-border);
 		padding-block: 0.125rem;
 	}
 
